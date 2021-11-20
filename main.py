@@ -22,31 +22,37 @@ import can
 
 # CAN VARIABLES
 bus = can.interface.Bus(channel='can0', bustype='socketcan_native')
-tempSensorDCDC_1 = ""
-tempSensorDCDC_2 = ""
-tempSensorDCDC_3 = ""
+tempSensorMOSFET = ""
+tempSensorDIODE = ""
+tempSensorINDUCTOR = ""
 tempSensorMCU = ""
-currSensorDCDC = ""
-voltSensorDCDC = ""
+currSensorDCDC_IN = ""
+currSensorDCDC_OUT = ""
+voltSensorDCDC_IN = ""
+voltSensorDCDC_OUT = ""
 
 # UDP VARIABLES
 UDP_IP_PC = "127.0.0.1"
 
-# PORTE DATI PER SIMULINK
-UDP_PORT_TEMP_1 = 18001
-UDP_PORT_TEMP_2 = 18002
-UDP_PORT_TEMP_3 = 18003
+# PORTE DATI PER PC
+UDP_PORT_TEMP_MOSFET = 18001
+UDP_PORT_TEMP_DIODE = 18002
+UDP_PORT_TEMP_INDUCTOR = 18003
 UDP_PORT_TEMP_MCU = 18004
-UDP_PORT_CURR = 18005
-UDP_PORT_VOLT = 18006
+UDP_PORT_CURR_IN = 18005
+UDP_PORT_CURR_OUT = 18006
+UDP_PORT_VOLT_IN = 18007
+UDP_PORT_VOLT_OUT = 18008
 
-# INVIA A PC
+# CREAZIONE SOCKET
 sock1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 sock2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 sock3 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 sock4 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 sock5 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 sock6 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
+sock7 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
+sock8 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 
 # ---------------------------------------------------- MAIN ------------------------------------------------------------
 
@@ -55,28 +61,34 @@ try:
         message = bus.recv()  # Wait until a message is received.
 
         if message.arbitration_id == 0x500:
-            tempSensorDCDC_1 = int((str(format(int('{0:x}'.format(message.data[0]), 16), '08b'))), 2)
-            print("Temperature sensor 1 DCDC: ", tempSensorDCDC_1)
-            tempSensorDCDC_2 = int((str(format(int('{0:x}'.format(message.data[1]), 16), '08b'))), 2)
-            print("Temperature sensor 2 DCDC: ", tempSensorDCDC_2)
-            tempSensorDCDC_3 = int((str(format(int('{0:x}'.format(message.data[2]), 16), '08b'))), 2)
-            print("Temperature sensor 3 DCDC: ", tempSensorDCDC_3)
+            tempSensorMOSFET = int((str(format(int('{0:x}'.format(message.data[0]), 16), '08b'))), 2)
+            print("Temperature sensor MOSFET:   ", tempSensorMOSFET)
+            tempSensorDIODE = int((str(format(int('{0:x}'.format(message.data[1]), 16), '08b'))), 2)
+            print("Temperature sensor DIODE:    ", tempSensorDIODE)
+            tempSensorINDUCTOR = int((str(format(int('{0:x}'.format(message.data[2]), 16), '08b'))), 2)
+            print("Temperature sensor INDUCTOR: ", tempSensorINDUCTOR)
             tempSensorMCU = int((str(format(int('{0:x}'.format(message.data[3]), 16), '08b'))), 2)
-            print("MCU Temperature Sensor: ", tempSensorMCU)
-            sock1.sendto(message.data[0], (UDP_IP_PC, UDP_PORT_TEMP_1))
-            sock2.sendto(message.data[1], (UDP_IP_PC, UDP_PORT_TEMP_2))
-            sock3.sendto(message.data[2], (UDP_IP_PC, UDP_PORT_TEMP_3))
+            print("Temperature Sensor MCU     : ", tempSensorMCU)
+            sock1.sendto(message.data[0], (UDP_IP_PC, UDP_PORT_TEMP_MOSFET))
+            sock2.sendto(message.data[1], (UDP_IP_PC, UDP_PORT_TEMP_DIODE))
+            sock3.sendto(message.data[2], (UDP_IP_PC, UDP_PORT_TEMP_INDUCTOR))
             sock4.sendto(message.data[3], (UDP_IP_PC, UDP_PORT_TEMP_MCU))
 
         if message.arbitration_id == 0x501:
-            currSensorDCDC = int((str(format(int('{0:x}'.format(message.data[0]), 16), '08b'))), 2)
-            print("DCDC Output Current: ", currSensorDCDC)
-            sock1.sendto(message.data[0], (UDP_IP_PC, UDP_PORT_CURR))
+            currSensorDCDC_IN = int((str(format(int('{0:x}'.format(message.data[0]), 16), '08b'))), 2)
+            print("DCDC Input Current:          ", currSensorDCDC_IN)
+            sock5.sendto(message.data[0], (UDP_IP_PC, UDP_PORT_CURR_IN))
+            currSensorDCDC_OUT = int((str(format(int('{0:x}'.format(message.data[1]), 16), '08b'))), 2)
+            print("DCDC Output Current:         ", currSensorDCDC_OUT)
+            sock6.sendto(message.data[1], (UDP_IP_PC, UDP_PORT_CURR_OUT))
 
         if message.arbitration_id == 0x502:
-            voltSensorDCDC = int((str(format(int('{0:x}'.format(message.data[0]), 16), '08b'))), 2)
-            print("DCDC Output Voltage: ", voltSensorDCDC)
-            sock1.sendto(message.data[0], (UDP_IP_PC, UDP_PORT_VOLT))
+            voltSensorDCDC_IN = int((str(format(int('{0:x}'.format(message.data[0]), 16), '08b'))), 2)
+            print("DCDC Input Voltage:          ", voltSensorDCDC_IN)
+            sock7.sendto(message.data[0], (UDP_IP_PC, UDP_PORT_VOLT_IN))
+            voltSensorDCDC_OUT = int((str(format(int('{0:x}'.format(message.data[1]), 16), '08b'))), 2)
+            print("DCDC Output Voltage:         ", voltSensorDCDC_OUT)
+            sock8.sendto(message.data[1], (UDP_IP_PC, UDP_PORT_VOLT_OUT))
 
 except KeyboardInterrupt:
     # Catch keyboard interrupt
