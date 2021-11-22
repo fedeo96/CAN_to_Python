@@ -74,7 +74,7 @@ with output(initial_len=12, interval=0) as output_lines:
 
         # Each socket listen on a dedicated port
         tempSensorMOSFET, addr1 = sock1.recvfrom(BUF_PORT_TEMP_MOSFET)
-        output_lines[1] = "__________________________DATA____________________________"
+        output_lines[1] = "_____________________DATA_______________________"
         tempSensorDIODE, addr2 = sock2.recvfrom(BUF_PORT_TEMP_DIODE)
         tempSensorINDUCTOR, addr3 = sock3.recvfrom(BUF_PORT_TEMP_INDUCTOR)
         tempSensorMCU, addr4 = sock4.recvfrom(BUF_PORT_TEMP_MCU)
@@ -93,4 +93,4 @@ with output(initial_len=12, interval=0) as output_lines:
         output_lines[8] = "Input Voltage:                              {}V".format(voltSensorDCDC_IN.decode())
         output_lines[9] = "Output Voltage:                             {}V".format(voltSensorDCDC_OUT.decode())
         output_lines[10] = "Efficiency:                                 {}%".format(efficiency.decode())
-        output_lines[11] = "__________________________________________________________"
+        output_lines[11] = "_______________________________________________"
