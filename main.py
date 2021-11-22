@@ -1,7 +1,7 @@
 """
 ########################################################################################################################
 # COMPONENT: main.py
-# DESCRIPTION: Main Function
+# DESCRIPTION: File to put in the RPI. It receives data from CAN BUS and sends to a HOST PC
 # PROJECT: CAN_to_Python.py
 #
 # AUTHOR: Federico Deidda
@@ -16,6 +16,7 @@
 
 import os
 import socket
+import struct
 import can
 
 # --------------------------------------------------- VARIABLES --------------------------------------------------------
@@ -32,7 +33,7 @@ voltSensorDCDC_IN = ""
 voltSensorDCDC_OUT = ""
 
 # UDP VARIABLES
-UDP_IP_PC = "127.0.0.1"
+UDP_IP_PC = "127.0.0.1"  # put PC's IP
 
 # PORTE DATI PER PC
 UDP_PORT_TEMP_MOSFET = 18001
@@ -43,6 +44,7 @@ UDP_PORT_CURR_IN = 18005
 UDP_PORT_CURR_OUT = 18006
 UDP_PORT_VOLT_IN = 18007
 UDP_PORT_VOLT_OUT = 18008
+UDP_PORT_EFFICIENCY = 18009
 
 # CREAZIONE SOCKET
 sock1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
@@ -53,8 +55,15 @@ sock5 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 sock6 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 sock7 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 sock8 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
+sock9 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
+
+# GLOBAL VARIABLES
+flagCurr = 0
+flagVolt = 0
 
 # ---------------------------------------------------- MAIN ------------------------------------------------------------
+
+print("Waiting for MCU data...\n")
 
 try:
     while True:
@@ -81,6 +90,7 @@ try:
             currSensorDCDC_OUT = int((str(format(int('{0:x}'.format(message.data[1]), 16), '08b'))), 2)
             print("DCDC Output Current:         ", currSensorDCDC_OUT)
             sock6.sendto(message.data[1], (UDP_IP_PC, UDP_PORT_CURR_OUT))
+            flagCurr = 1
 
         if message.arbitration_id == 0x502:
             voltSensorDCDC_IN = int((str(format(int('{0:x}'.format(message.data[0]), 16), '08b'))), 2)
@@ -89,6 +99,12 @@ try:
             voltSensorDCDC_OUT = int((str(format(int('{0:x}'.format(message.data[1]), 16), '08b'))), 2)
             print("DCDC Output Voltage:         ", voltSensorDCDC_OUT)
             sock8.sendto(message.data[1], (UDP_IP_PC, UDP_PORT_VOLT_OUT))
+            flagVolt =1
+
+        if flagCurr == 1 and flagVolt == 1:
+            efficiency = ((voltSensorDCDC_OUT*currSensorDCDC_OUT)/(voltSensorDCDC_IN*currSensorDCDC_IN))*100
+            print("Efficiency:                  " + str(efficiency) + " %")
+            sock9.sendto(bytearray(struct.pack("f", efficiency)), (UDP_IP_PC, UDP_PORT_EFFICIENCY))
 
 except KeyboardInterrupt:
     # Catch keyboard interrupt
