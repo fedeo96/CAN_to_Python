@@ -8,7 +8,7 @@
 #
 # REVISION:
 # REVISION AUTHOR:
-# LAST MODIFIED: 20/11/2021
+# LAST MODIFIED: 22/11/2021
 ########################################################################################################################
 """
 
@@ -104,7 +104,7 @@ try:
         if flagCurr == 1 and flagVolt == 1:
             efficiency = ((voltSensorDCDC_OUT*currSensorDCDC_OUT)/(voltSensorDCDC_IN*currSensorDCDC_IN))*100
             print("Efficiency:                  " + str(efficiency) + " %")
-            sock9.sendto(bytearray(struct.pack("f", efficiency)), (UDP_IP_PC, UDP_PORT_EFFICIENCY))
+            sock9.sendto((bytes(str(efficiency), 'ascii')), (UDP_IP_PC, UDP_PORT_EFFICIENCY))
 
 except KeyboardInterrupt:
     # Catch keyboard interrupt
