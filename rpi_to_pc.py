@@ -1,7 +1,7 @@
 """
 ########################################################################################################################
 # COMPONENT: rpi_to_pc.py
-# DESCRIPTION: File to use in the HOST PC in order to plot the ECU data
+# DESCRIPTION: File to use in the HOST PC in order to plot the ECU data received from RPI
 # PROJECT: CAN_to_Python.py
 #
 # AUTHOR: Federico Deidda
@@ -15,6 +15,7 @@
 # --------------------------------------------------- IMPORTS ----------------------------------------------------------
 
 import socket
+from reprint import output
 
 # --------------------------------------------------- VARIABLES --------------------------------------------------------
 
@@ -67,28 +68,29 @@ sock9.bind((UDP_IP_RPI, UDP_PORT_EFFICIENCY))
 # ---------------------------------------------------- MAIN ------------------------------------------------------------
 
 # Start listening loop
-while True:
-    print("Waiting for ECU data...\n")
-    # Each socket listen on a dedicated port (8 data - 8 ports)
+with output(initial_len=12, interval=0) as output_lines:
+    while True:
+        output_lines[0] = "Waiting for ECU data..."
 
-    tempSensorMOSFET, addr1 = sock1.recvfrom(BUF_PORT_TEMP_MOSFET)
-    print("__________________________DATA____________________________")
-    tempSensorDIODE, addr2 = sock2.recvfrom(BUF_PORT_TEMP_DIODE)
-    tempSensorINDUCTOR, addr3 = sock3.recvfrom(BUF_PORT_TEMP_INDUCTOR)
-    tempSensorMCU, addr4 = sock4.recvfrom(BUF_PORT_TEMP_MCU)
-    currSensorDCDC_IN, addr5 = sock5.recvfrom(BUF_PORT_CURR_IN)
-    currSensorDCDC_OUT, addr6 = sock6.recvfrom(BUF_PORT_CURR_OUT)
-    voltSensorDCDC_IN, addr7 = sock7.recvfrom(BUF_PORT_VOLT_IN)
-    voltSensorDCDC_OUT, addr8 = sock8.recvfrom(BUF_PORT_VOLT_OUT)
-    efficiency, addr9 = sock9.recvfrom(BUF_PORT_EFFICIENCY)
+        # Each socket listen on a dedicated port
+        tempSensorMOSFET, addr1 = sock1.recvfrom(BUF_PORT_TEMP_MOSFET)
+        output_lines[1] = "__________________________DATA____________________________"
+        tempSensorDIODE, addr2 = sock2.recvfrom(BUF_PORT_TEMP_DIODE)
+        tempSensorINDUCTOR, addr3 = sock3.recvfrom(BUF_PORT_TEMP_INDUCTOR)
+        tempSensorMCU, addr4 = sock4.recvfrom(BUF_PORT_TEMP_MCU)
+        currSensorDCDC_IN, addr5 = sock5.recvfrom(BUF_PORT_CURR_IN)
+        currSensorDCDC_OUT, addr6 = sock6.recvfrom(BUF_PORT_CURR_OUT)
+        voltSensorDCDC_IN, addr7 = sock7.recvfrom(BUF_PORT_VOLT_IN)
+        voltSensorDCDC_OUT, addr8 = sock8.recvfrom(BUF_PORT_VOLT_OUT)
+        efficiency, addr9 = sock9.recvfrom(BUF_PORT_EFFICIENCY)
 
-    print("Temperature sensor MOSFET:                  ", tempSensorMOSFET.decode())
-    print("Temperature sensor DIODE:                   ", tempSensorDIODE.decode())
-    print("Temperature sensor INDUCTOR:                ", tempSensorINDUCTOR.decode())
-    print("Temperature sensor MCU:                     ", tempSensorMCU.decode())
-    print("DCDC Input Current:                         ", currSensorDCDC_IN.decode())
-    print("DCDC Output Current:                        ", currSensorDCDC_OUT.decode())
-    print("DCDC Input Voltage:                         ", voltSensorDCDC_IN.decode())
-    print("DCDC Output Voltage:                        ", voltSensorDCDC_OUT.decode())
-    print("Efficiency:                                 ", efficiency.decode())
-    print("__________________________________________________________\n")
+        output_lines[2] = "Temperature sensor MOSFET:                  {}°C".format(tempSensorMOSFET.decode())
+        output_lines[3] = "Temperature sensor DIODE:                   {}°C".format(tempSensorDIODE.decode())
+        output_lines[4] = "Temperature sensor INDUCTOR:                {}°C".format(tempSensorINDUCTOR.decode())
+        output_lines[5] = "Temperature sensor MCU:                     {}°C".format(tempSensorMCU.decode())
+        output_lines[6] = "Input Current:                              {}A".format(currSensorDCDC_IN.decode())
+        output_lines[7] = "Output Current:                             {}A".format(currSensorDCDC_OUT.decode())
+        output_lines[8] = "Input Voltage:                              {}V".format(voltSensorDCDC_IN.decode())
+        output_lines[9] = "Output Voltage:                             {}V".format(voltSensorDCDC_OUT.decode())
+        output_lines[10] = "Efficiency:                                 {}%".format(efficiency.decode())
+        output_lines[11] = "__________________________________________________________"

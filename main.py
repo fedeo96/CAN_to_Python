@@ -1,7 +1,7 @@
 """
 ########################################################################################################################
 # COMPONENT: main.py
-# DESCRIPTION: File to put in the RPI. It receives data from CAN BUS and sends to a HOST PC
+# DESCRIPTION: File to put in the RPI. It receives data from CAN BUS and sends to a HOST PC via UDP sockets
 # PROJECT: CAN_to_Python.py
 #
 # AUTHOR: Federico Deidda
@@ -16,7 +16,6 @@
 
 import os
 import socket
-import struct
 import can
 
 # --------------------------------------------------- VARIABLES --------------------------------------------------------
@@ -62,6 +61,9 @@ flagCurr = 0
 flagVolt = 0
 
 # ---------------------------------------------------- MAIN ------------------------------------------------------------
+
+# initialize the can0 interface
+os.system("sudo /sbin/ip link set can0 up type can bitrate 500000")
 
 print("Waiting for MCU data...\n")
 
