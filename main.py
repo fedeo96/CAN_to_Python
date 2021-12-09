@@ -101,7 +101,7 @@ try:
             voltSensorDCDC_OUT = int((str(format(int('{0:x}'.format(message.data[1]), 16), '08b'))), 2)
             print("DCDC Output Voltage:         ", voltSensorDCDC_OUT)
             sock8.sendto(message.data[1], (UDP_IP_PC, UDP_PORT_VOLT_OUT))
-            flagVolt =1
+            flagVolt = 1
 
         if flagCurr == 1 and flagVolt == 1:
             efficiency = ((voltSensorDCDC_OUT*currSensorDCDC_OUT)/(voltSensorDCDC_IN*currSensorDCDC_IN))*100
